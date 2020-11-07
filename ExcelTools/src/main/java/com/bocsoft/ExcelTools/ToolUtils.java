@@ -4,10 +4,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 /**
 * @Author : YangNJ
 * @Create Date: 2020-11-6 22:54:47
@@ -80,7 +77,7 @@ public class ToolUtils {
 			tempNum = columnTitle.charAt(i) - 'A' + 1;
 			columnNum = columnNum+powerSum(tempNum,columnTitle.length()-i);		
 		}
-		logger.info(columnTitle+"<->"+ String.valueOf(columnNum));
+		//logger.info(columnTitle+"<->"+ String.valueOf(columnNum));
 		return columnNum-1;
 	}
 

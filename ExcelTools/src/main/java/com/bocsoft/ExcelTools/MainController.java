@@ -57,9 +57,25 @@ public class MainController {
 
     final FileChooser fileChooser = new FileChooser();
 	public void initialize() {
-		//this.priFileName.setText("0000000");
-		//this.priFileName.setText("D:/YangJX_Doc/物理竞赛学生跟踪/2020物理国集 - target.xlsx");
-        //this.secFileName.setText("D:/YangJX_Doc/物理竞赛学生跟踪/2020物理国集.xlsx");
+		//文本框属性绑定，控制文本变化的对应行为
+		this.mergeColumn1.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
+		this.mergeColumn2.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
+		this.mergeColumn3.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
+		this.mergeColumn4.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
+		this.mergeColumn5.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
+		this.mergeColumn6.textProperty().addListener((observable,oldvalue,newvalue)->{
+			checkLetterTxt(newvalue);
+		});
 		this.mergeColumn1.setText("A");
 		this.sourceSheetName.setText("Sheet1");
 		this.targetSheetName.setText("Sheet1");
@@ -85,35 +101,40 @@ public class MainController {
     @FXML    
     public void mergeButtonClicked(ActionEvent actionEvent) {
 		TreeSet<Integer> marchColumns = new TreeSet<Integer>();
-		if(checkInput()) {
-			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn1.getText().trim()));
-			if(checkTextInput(mergeColumn2.getText()))
-				marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn2.getText().trim()));
-			if(checkTextInput(mergeColumn3.getText()))
-				marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn3.getText().trim()));
-			if(checkTextInput(mergeColumn4.getText()))
-				marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn4.getText().trim()));
-			if(checkTextInput(mergeColumn5.getText()))
-				marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn5.getText().trim()));
-			if(checkTextInput(mergeColumn6.getText()))
-				marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn6.getText().trim()));
-			try {
-				mergeService.excelMerge(priFileName.getText(),
-					secFileName.getText(),
-					targetSheetName.getText(),
-					sourceSheetName.getText(),
-					marchColumns,
-					ToolUtils.columnTitleToInt(keyColumn.getText().trim()),
-					keyTxt.getText());
-				} catch (Exception e) {
-				// TODO Auto-generated catch block
-					logger.error("异常",e);
-					ToolUtils.showMsg(AlertType.ERROR,"系统错误","例外信息",e.getMessage());
+		try {
+			checkInput();
+		} catch (Exception e1) {
+			logger.info("警示信息",e1);
+			ToolUtils.showMsg(AlertType.WARNING,"警示信息","输入错误",e1.getMessage());
+			return;
+		}
+		marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn1.getText().trim()));
+		if(checkTextInput(mergeColumn2.getText()))
+			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn2.getText().trim().toUpperCase()));
+		if(checkTextInput(mergeColumn3.getText()))
+			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn3.getText().trim().toUpperCase()));
+		if(checkTextInput(mergeColumn4.getText()))
+			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn4.getText().trim().toUpperCase()));
+		if(checkTextInput(mergeColumn5.getText()))
+			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn5.getText().trim().toUpperCase()));
+		if(checkTextInput(mergeColumn6.getText()))
+			marchColumns.add(ToolUtils.columnTitleToInt(mergeColumn6.getText().trim().toUpperCase()));
+		try {
+			mergeService.excelMerge(priFileName.getText(),
+				secFileName.getText(),
+				targetSheetName.getText(),
+				sourceSheetName.getText(),
+				marchColumns,
+				ToolUtils.columnTitleToInt(keyColumn.getText().trim()),
+				keyTxt.getText());
+			} catch (Exception e) {
+			// TODO Auto-generated catch block
+				logger.error("异常",e);
+				ToolUtils.showMsg(AlertType.ERROR,"系统错误","例外信息",e.getMessage());
 				
-			}    	
-    	}
-       	
+		}    	
     }
+       	
 
 	private void configureFileChooser(FileChooser fileChooser) {
 		// TODO Auto-generated method stub
@@ -128,31 +149,32 @@ public class MainController {
 	}
 	
 	//Check all input Control box context.还需要补充
-	public boolean checkInput() {
-		boolean checkReturn=true;
-		if(!checkTextInput(targetSheetName.getText())) {
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","选择目标SheetNum必须输入数字!");
-		}else if(!checkTextInput(sourceSheetName.getText())) {
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","选择源SheetNum必须输入数字!");
-		}else if(!checkTextInput(priFileName.getText())){
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","选择合并主文件不能为空!");
-		}else if(!checkTextInput(secFileName.getText())){
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","选择合并从文件不能为空!");
-		}else if(!checkTextInput(mergeColumn1.getText())){
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","合并匹配列必须输入数字!");
-		}else if(!checkTextInput(keyColumn.getText())){
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","合并筛选列必须输入数字!");
-		}else if(!checkTextInput(keyTxt.getText())){
-			checkReturn=false;
-			ToolUtils.showMsg(AlertType.WARNING, "警示信息","输入错误","合并筛选内容不能为空！");
-		}
-     	return checkReturn;	
+	//Update with exception replace if else.
+	public void checkInput() throws Exception {
+		if(!checkTextInput(targetSheetName.getText())) 
+			throw new ToolsException("选择目标SheetName必须输入!");			
+		if(!checkTextInput(sourceSheetName.getText())) 
+			throw new ToolsException("选择源SheetName必须输入!");			
+		if(!checkTextInput(priFileName.getText()))
+			throw new ToolsException("选择合并主文件不能为空!");
+		if(!checkTextInput(secFileName.getText()))
+			throw new ToolsException("选择合并从文件不能为空!");
+		if(!checkTextInput(mergeColumn1.getText())||!checkLetterTxt(mergeColumn1.getText()))
+			throw new ToolsException("合并匹配列1必须输入字母!");
+		if(!checkLetterTxt(mergeColumn2.getText())) 
+			throw new ToolsException("合并匹配列2必须输入字母或空!");
+		if(!checkLetterTxt(mergeColumn3.getText()))
+			throw new ToolsException("合并匹配列3必须输入字母或空!");	
+		if(!checkLetterTxt(mergeColumn4.getText()))
+			throw new ToolsException("合并匹配列4必须输入字母或空!");
+		if(!checkLetterTxt(mergeColumn5.getText()))
+			throw new ToolsException("合并匹配列5必须输入字母或空!");
+		if(!checkLetterTxt(mergeColumn6.getText()))
+			throw new ToolsException("合并匹配列6必须输入字母或空!");
+		if(!checkTextInput(keyColumn.getText()))
+			throw new ToolsException("合并筛选列必须输入数字!");			
+		if(!checkTextInput(keyTxt.getText()))
+			throw new ToolsException("合并筛选内容不能为空!");
 	}
 	
 	//Check digit input,must not null,length great 0,all context is numeric.
@@ -172,5 +194,8 @@ public class MainController {
 		return checkReturn;		
 	}	
 	
+	public boolean checkLetterTxt(String txtString) {
+		return(0==txtString.length()||txtString.matches("[a-zA-Z]+"));
+	}
 	
 }

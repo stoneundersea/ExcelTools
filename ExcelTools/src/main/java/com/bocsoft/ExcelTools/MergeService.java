@@ -1,7 +1,5 @@
 package com.bocsoft.ExcelTools;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -17,10 +15,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 
@@ -42,7 +37,18 @@ public class MergeService  {
 		 Workbook targetWb = new XSSFWorkbook(inputStreamTarget);
 		 Workbook sourceWb = new XSSFWorkbook(inputStreamSource);
 		 Sheet targetSheet = targetWb.getSheet(targetSheetName);
+		 if(null == targetSheet) {
+			 targetWb.close();
+			 sourceWb.close();
+			 throw new ToolsException("目标Sheet不存在");
+		 }			 
 		 Sheet sourceSheet = sourceWb.getSheet(sourceSheetName);
+		 if(null == sourceSheet) {
+			 sourceWb.close();
+			 targetWb.close();
+			 throw new ToolsException("源Sheet不存在");
+		 }
+			 
 		 replaceRecords=0;
 		 appendRecords=0;
 		 mergeSheet(targetSheet,sourceSheet,marchColumns,keyColumn,keyTxt);
@@ -52,6 +58,8 @@ public class MergeService  {
 		 targetWb.write(excelFileOutPutStream);
 		 excelFileOutPutStream.flush();
 		 excelFileOutPutStream.close();
+		 targetWb.close();
+		 sourceWb.close();
 		 ToolUtils.showMsg(AlertType.INFORMATION, 
 				 "运行结果说明","数据统计",
 				 "目标文件："+targetFileName  + " Sheet ："	+ targetSheet.getSheetName() +"\n"+
@@ -90,14 +98,14 @@ public class MergeService  {
 	 * @Update Description:
 	 */
 
-	public void mergeSheet(Sheet targetSheet,Sheet SourceSheet,TreeSet<Integer> marchColumns,int keyColumn,String keyTxt) {
+	public void mergeSheet(Sheet targetSheet,Sheet sourceSheet,TreeSet<Integer> marchColumns,int keyColumn,String keyTxt) {
 		Row sourceRow;
 		// 遍历源Sheet的每一Row，满足条件(非空,及筛选列其文本内容满足条件值)，进入目标Sheet进行匹配处理。
-		for (int i=0; i<=SourceSheet.getLastRowNum(); i++) {
-			sourceRow = SourceSheet.getRow(i);
+		for (int i=0; i<=sourceSheet.getLastRowNum(); i++) {
+			sourceRow = sourceSheet.getRow(i);
 			if(null!=sourceRow) {
 				if((null!=sourceRow.getCell(keyColumn))&&(keyTxt.equals(sourceRow.getCell(keyColumn).getStringCellValue()))) {
-					mergeRow(targetSheet,SourceSheet.getRow(i),marchColumns);
+					mergeRow(targetSheet,sourceSheet.getRow(i),marchColumns);
 				}			
 			}
 		}
@@ -124,7 +132,7 @@ public class MergeService  {
 	 */
 	public void mergeRow(Sheet targetSheet,Row sourceRow, TreeSet<Integer> marchColumns) {
 		int replaceFlag = 0;
-		Iterator itSet = marchColumns.iterator();
+		Iterator<Integer> itSet = marchColumns.iterator();
 		boolean marchFlag;
 		Integer marchColumn;
 		// 遍历目标Sheet中的Row，通过关键列和源Row匹配	
