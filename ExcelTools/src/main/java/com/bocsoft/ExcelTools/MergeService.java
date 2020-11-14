@@ -217,15 +217,16 @@ public class MergeService  {
 	 * @return boolean
 	 * @throws 
 	 *-------------------------------
-	 * @Update Date :
-	 * @Update By : 
-	 * @Update Description:
+	 * @Update Date :  2020-11-14
+	 * @Update By :    YangNJ
+	 * @Update Description: fix bug
 	 */
 	public boolean marchCell(Sheet targetSheet,Row sourceRow,int marchLine,int marchColumn)
 	{
-		boolean marchFlag = false;
 		String targetValue,  sourceValue;
-		CellType sourceCellType, targetCellType;
+		//如果目标row是null，直接返回false  2020-11-14
+		if(null==targetSheet.getRow(marchLine))
+			return false;
 		if((null!=targetSheet.getRow(marchLine))&&
 				(null!=targetSheet.getRow(marchLine).getCell(marchColumn))) {
 			targetValue = getCellValue(targetSheet.getRow(marchLine).getCell(marchColumn));
@@ -235,12 +236,10 @@ public class MergeService  {
 		else sourceValue = null;
 			
 		if(null!=sourceValue && null!=targetValue) {
-			if(sourceValue.equals(targetValue)) marchFlag = true;
-			else marchFlag = false;				
-		}else if(null==sourceValue && null==targetValue) marchFlag = true;
-		else marchFlag = false;
-		
-		return marchFlag;
+			if(sourceValue.equals(targetValue)) return true;
+			else return false;				
+		}else if(null==sourceValue && null==targetValue) return true;
+		else return false;
 	}
 	
 	/**
@@ -281,6 +280,8 @@ public class MergeService  {
 			case  STRING: 
 				returnString = cell.getStringCellValue();
 				break;
+			default:
+				returnString = null;
 		}
 		return returnString;
 		
@@ -357,6 +358,8 @@ public class MergeService  {
 					break;
 				case  STRING: 
 					targetCell.setCellValue(sourceCell.getRichStringCellValue());
+					break;		
+				default:					
 			}
 		}else targetCell = null;
 	}
@@ -418,8 +421,7 @@ public class MergeService  {
 	 */
 	public void appendRow(Sheet targetSheet, Row sourceRow)
 	{
-		int appendRowNum=targetSheet.getLastRowNum();
-		appendRowNum++;
+		int appendRowNum=findLastRow(targetSheet);
 		//在目标Sheet的最后Row后追加一Row,再用源Row覆盖
 		Row targetRow = targetSheet.createRow(appendRowNum);
 		for(int i =0 ;i<sourceRow.getLastCellNum();i++)
@@ -428,6 +430,57 @@ public class MergeService  {
 			replaceCell(targetRow.createCell(i), sourceRow.getCell(i));
 		}
 		logger.info("append one line: "+formTxtRow(sourceRow));
+	}
+	
+	/**
+	 * 
+	 * @Author : YangNJ
+	 * @Create Date: 2020-11-1 11:06:44
+	 * @Description: 从sheet最后往前获取第一个null ROw或全cell为的null或空的Row
+	 * @version ：V1.0
+	 * @param: 
+	 *    @param targetSheet
+	 *    @return 
+	 * @return int
+	 * @throws 
+	 *-------------------------------
+	 * @Update Date :
+	 * @Update By : 
+	 * @Update Description:
+	 */
+	public int findLastRow(Sheet targetSheet) {
+		Cell targetCell;
+		for(int i=targetSheet.getLastRowNum();i>=0;i--) {
+			if(null==targetSheet.getRow(i)) continue;
+			for(int j=0; j<targetSheet.getRow(i).getLastCellNum();j++) {
+				targetCell=targetSheet.getRow(i).getCell(j);
+				String tmpStr = null;
+				if(null!=targetCell) {
+					switch(targetCell.getCellType())
+					{
+			     		case  BOOLEAN:   
+			     			tmpStr=String.valueOf(targetCell.getBooleanCellValue());
+			    			break;
+			    		case  ERROR:   
+			    			tmpStr="#Error";
+			    			break;
+			    		case  FORMULA: 
+			    			tmpStr="#FORMULA";
+			    			break;
+			    		case  NUMERIC: 
+			    			tmpStr=String.valueOf(targetCell.getNumericCellValue());
+			    			break;
+			    		case  STRING: 
+			    			tmpStr = targetCell.getStringCellValue().trim();
+			    			break;
+			    		default:
+			    			tmpStr = null;			    			
+			    	}
+					if((null!=tmpStr)&&(0!=tmpStr.length())) return i+1;					
+				}
+			}
+		}
+		return 0;		
 	}
 
 	/**
@@ -473,8 +526,10 @@ public class MergeService  {
 			    		case  NUMERIC: 
 			    			iStringBuffer.append(String.valueOf(iRow.getCell(i).getNumericCellValue()));
 			    			break;
-			    		case  STRING: iStringBuffer.append(iRow.getCell(i).getStringCellValue());			
-
+			    		case  STRING: 
+			    			iStringBuffer.append(iRow.getCell(i).getStringCellValue());
+			    			break;
+			    		default:
 					}
 				}else iStringBuffer.append("#NULL");
 			}

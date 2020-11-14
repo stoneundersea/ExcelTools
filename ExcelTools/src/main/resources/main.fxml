@@ -1,55 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="508.0" prefWidth="600.0" 
+<VBox prefHeight="570.0" prefWidth="600.0" 
 fx:controller="com.bocsoft.ExcelTools.MainController" 
 xmlns="http://javafx.com/javafx/8.0.171" 
 xmlns:fx="http://javafx.com/fxml/1"
 fx:id="rootLayout" >
-   <children>
-      <Button layoutX="37.0" layoutY="20.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="116.0" text="选择合并目标文件" 
-      fx:id="buttonPriFileSelect" onAction="#selectButtonClicked"/>
-      <Button layoutX="37.0" layoutY="106.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="116.0" text="选择合并源文件" 
-      fx:id="buttonSecFileSelect" onAction="#selectButtonClicked"/>
-      <TextField layoutX="37.0" layoutY="67.0" prefHeight="32.0" prefWidth="522.0" fx:id="priFileName"/>
-      <TextField layoutX="37.0" layoutY="152.0" prefHeight="32.0" prefWidth="522.0" fx:id="secFileName"/>
-      <Button layoutX="37.0" layoutY="433.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="116.0" text="开始合并" 
-      fx:id="buttonMerge" onAction="#mergeButtonClicked"/>
-	  <Label layoutX="32.0" layoutY="313.0" prefHeight="40.0" prefWidth="105.0" text="       合并筛选列" />
-	  <TextField layoutX="175.0" layoutY="313.0" prefHeight="40.0" prefWidth="86.0" 
-	  fx:id="keyColumn"/>
-      <Label layoutX="37.0" layoutY="370.0" prefHeight="40.0" prefWidth="94.0" text="    合并筛选内容" />	
-      <TextField layoutX="175.0" layoutY="370.0" prefHeight="40.0" prefWidth="383.0" 
-      fx:id="keyTxt"/>
-      <Button layoutX="180.0" layoutY="106.0" prefHeight="40.0" prefWidth="120.0" text="选择源Sheet"
-      fx:id="selectSourceSheet" onAction="#selectSheetButtonClicked"/>
-      <Button layoutX="180.0" layoutY="20.0" prefHeight="40.0" prefWidth="120.0" text="选择目标Sheet" 
-      fx:id="selectTargetSheet" onAction="#selectSheetButtonClicked"/>
-      <TextField layoutX="321.0" layoutY="106.0" prefHeight="40.0" prefWidth="238.0" 
-      fx:id="sourceSheetName"/>
-      <TextField layoutX="321.0" layoutY="20.0" prefHeight="40.0" prefWidth="238.0" 
-      fx:id="targetSheetName"/>
-      <Label layoutX="37.0" layoutY="193.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列1" />
-      <TextField layoutX="131.0" layoutY="193.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn1"/>  
-      <Label layoutX="214.0" layoutY="193.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列2" />
-      <TextField layoutX="308.0" layoutY="193.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn2"/>
-      <Label layoutX="407.0" layoutY="193.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列3" />
-      <TextField layoutX="501.0" layoutY="193.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn3"/>
-      <Label layoutX="37.0" layoutY="246.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列4" />
-      <TextField layoutX="131.0" layoutY="246.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn4"/>
-      <Label layoutX="214.0" layoutY="246.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列5" />
-      <TextField layoutX="308.0" layoutY="246.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn5"/>
-      <Label layoutX="407.0" layoutY="246.0" prefHeight="40.0" prefWidth="94.0" text="    合并匹配列6" />
-      <TextField layoutX="501.0" layoutY="246.0" prefHeight="40.0" prefWidth="58.0" 
-      fx:id="mergeColumn6"/>
-    </children>
-</Pane>
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About" 
+            fx:id="helpAbout" onAction="#helpAboutClicked"/>
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <TabPane prefHeight="547.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Merge Sheet">
+            <content>
+              <fx:include source ="mergeTabPane.fxml"/> 
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+  </children>
+</VBox>
