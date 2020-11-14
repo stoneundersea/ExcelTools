@@ -1,6 +1,8 @@
 package com.bocsoft.ExcelTools;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,10 @@ import org.springframework.stereotype.Component;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -51,10 +56,14 @@ public class MainController {
     @FXML
     private TextField keyTxt;    
     @FXML
-    private Button buttonMerge;    
+    private Button selectSourceSheet;
+    @FXML
+    private Button selectTargetSheet;   
+    @FXML
+    private Button buttonMerge; 
     @Autowired
     private MergeService mergeService;
-
+    
     final FileChooser fileChooser = new FileChooser();
 	public void initialize() {
 		//文本框属性绑定，控制文本变化的对应行为
@@ -79,6 +88,7 @@ public class MainController {
 		this.mergeColumn1.setText("A");
 		this.sourceSheetName.setText("Sheet1");
 		this.targetSheetName.setText("Sheet1");
+		
 		//this.mergeColumn.setText("0");
 		//System.out.println(mergeService);
 	}
@@ -128,7 +138,6 @@ public class MainController {
 				ToolUtils.columnTitleToInt(keyColumn.getText().trim()),
 				keyTxt.getText());
 			} catch (Exception e) {
-			// TODO Auto-generated catch block
 				logger.error("异常",e);
 				ToolUtils.showMsg(AlertType.ERROR,"系统错误","例外信息",e.getMessage());
 				
@@ -137,7 +146,6 @@ public class MainController {
        	
 
 	private void configureFileChooser(FileChooser fileChooser) {
-		// TODO Auto-generated method stub
 		fileChooser.setTitle("Select xlsx File");
         fileChooser.setInitialDirectory(
             new File(System.getProperty("user.home"))
@@ -186,6 +194,68 @@ public class MainController {
 		return checkReturn;		
 	}	
 	
+	
+	/**
+	 * @Author :YangNJ
+	 * @Create Date: 2020-11-1 11:06:44
+	 * @Description: Excel Sheet select function,使用弹出子窗口的方式。
+	 * @version ：V1.0
+	 * @param: 
+	 *    @param actionEvent
+	 * @return void
+	 * @throws 
+	 *-------------------------------
+	 * @Update Date :
+	 * @Update By : 
+	 * @Update Description:
+	 */
+	
+	@FXML
+	public void selectSheetButtonClicked(ActionEvent actionEvent)  {
+		String execlFileName = null;
+		String choicedSheet = null;
+		ArrayList<String> sheetNames;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/selectWindows.fxml"));
+		Stage choiceStage=new Stage();//创建舞台；
+		choiceStage.setAlwaysOnTop(true);
+		try {
+			choiceStage.setScene(new Scene(loader.load()));//将场景载入舞台
+		} catch (IOException e) {
+			logger.error("异常",e);
+			ToolUtils.showMsg(AlertType.ERROR,"系统错误","例外信息",e.getMessage());
+			return;
+		}  
+		if(selectSourceSheet==(Button)actionEvent.getSource()) {
+			choiceStage.setTitle("选择源Sheet");
+			execlFileName = secFileName.getText();
+		}
+		if(selectTargetSheet==(Button)actionEvent.getSource()) {
+			choiceStage.setTitle("选择目标Sheet");
+			execlFileName = priFileName.getText();
+		}
+		ChoiceController choiceController =  loader.getController();
+		try {
+			sheetNames = mergeService.excelQuerySheets(execlFileName);
+			//Caller传递参数给Controller
+			choiceController.initData(sheetNames);
+		} catch (Exception e) {
+			logger.error("异常",e);
+			ToolUtils.showMsg(AlertType.ERROR,"系统错误","例外信息",e.getMessage());
+			return;
+		}
+		choiceStage.getIcons().add(new Image("/ExcelTools.jpg"));
+		choiceStage.showAndWait(); //显示窗口；
+		//从子窗口获取选择的sheet，如果非空则更新相应的文本框内容
+		choicedSheet = choiceController.getChoicedSheet();
+		if(null!=choicedSheet) {
+			if(selectSourceSheet==(Button)actionEvent.getSource())
+				sourceSheetName.setText(choicedSheet);
+			if(selectTargetSheet==(Button)actionEvent.getSource())
+				targetSheetName.setText(choicedSheet);
+		}
+	}
+	
+	
 	//Check Text Inout,must not null,length great 0.
 	public boolean checkTextInput(String textInput) {
 		boolean checkReturn=true;
@@ -197,5 +267,6 @@ public class MainController {
 	public boolean checkLetterTxt(String txtString) {
 		return(0==txtString.length()||txtString.matches("[a-zA-Z]+"));
 	}
-	
+
 }
+

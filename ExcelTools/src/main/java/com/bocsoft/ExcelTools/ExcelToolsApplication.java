@@ -11,6 +11,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 @SpringBootApplication
@@ -31,6 +32,7 @@ public class ExcelToolsApplication extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Merge Excel");
 		primaryStage.setScene(new Scene(createRoot()));
+		primaryStage.getIcons().add(new Image("/ExcelTools.jpg"));
 		primaryStage.show();
 		
 	}

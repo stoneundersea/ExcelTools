@@ -1,9 +1,11 @@
 package com.bocsoft.ExcelTools;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -26,6 +28,36 @@ public class MergeService  {
 	//@Autowired
 	//private ToolUtils toolUtils;
 	int replaceRecords=0,appendRecords=0;
+	/**
+	 * 
+	 * @Author : YangNJ
+	 * @Create Date: 2020-11-1 11:06:44
+	 * @Description:     获取EXCEL文件中的所有Sheets
+	 * @version ： V1.0
+	 * @param: 
+	 *    @param execlFileName   Excel文件名
+	 *    @return 
+	 * @return ArrayList<String>   EXCEL文件中的所有Sheets名
+	 * @throws I/O exception
+	 *-------------------------------
+	 * @Update Date :
+	 * @Update By : 
+	 * @Update Description:
+	 */
+	public ArrayList<String> excelQuerySheets(String execlFileName) throws Exception {
+		ArrayList<String> sheetNames = new ArrayList<String>();
+		FileInputStream inputStreamExcel = new FileInputStream(execlFileName);
+		//防止处理部分Excel I/O操作时出错
+		ZipSecureFile.setMinInflateRatio(-1.0d);
+		Workbook excelWb = new XSSFWorkbook(inputStreamExcel);
+		for (int i=0; i<excelWb.getNumberOfSheets(); i++) {
+		    sheetNames.add(excelWb.getSheetName(i));
+		}
+		excelWb.close();
+		inputStreamExcel.close();
+		return sheetNames;
+	}
+	
 	public void excelMerge(String targetFileName, 
 			String sourceFileName,
 			String targetSheetName,String sourceSheetName,
@@ -34,6 +66,9 @@ public class MergeService  {
 		 //String fileType = targetFileName.substring(sourceFileName.lastIndexOf(".") + 1, targetFileName.length());
 		 FileInputStream inputStreamTarget = new FileInputStream(targetFileName);
 		 FileInputStream inputStreamSource = new FileInputStream(sourceFileName);
+		 // Update By YangNJ in 2020-11-11 处理部分Excel I/O操作时出现
+		 // Zip bomb detected! The file would exceed the max. ratio of compressed file size to the size of the expanded data.
+		 ZipSecureFile.setMinInflateRatio(-1.0d);
 		 Workbook targetWb = new XSSFWorkbook(inputStreamTarget);
 		 Workbook sourceWb = new XSSFWorkbook(inputStreamSource);
 		 Sheet targetSheet = targetWb.getSheet(targetSheetName);
